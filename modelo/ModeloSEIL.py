@@ -3,49 +3,45 @@ import struct as st
 import numpy as np
 
 
-class ModeloSEIL():
+class ModeloSEIL:
     def __init__(self):
-
-
+        #   fuente: https://bloqueneon.uniandes.edu.co/content/enforced/51408-202120_IBIO2240_01/Proyecto%20final/Cap%2016.pdf pg 4
         # VARIABLES MATEMATICAS
         # β beta
-        self.coef_transmision = 0
+        self.β = 0.025
         # Λ lambda
-        self.tasa_reclutamiento_suceptibles = 0
+        self.Λ = 1/2
         # Φ, phi
-        self.tasa_infectados_resultan_perdidos = 0
+        self.Φ = 0.02
         # μ, mu
-        self.tasa_muertes_naturales = 0
+        self.μ = 0.0101
 
-        # CONSTANTES MATEMATICAS
-        #   fuente: https://bloqueneon.uniandes.edu.co/content/enforced/51408-202120_IBIO2240_01/Proyecto%20final/Cap%2016.pdf pg 4
-        δ = 1
-        p = 0.3
-        k = 0.005
-        r1 = 0
-        r2 = 0.8182
-        γ = 0.01
-        d1 = 0.0227
-        d2 = 0.20
+        self.δ = 1
+        self.p = 0.3
+        self.k = 0.005
+        self.r1 = 0
+        self.r2 = 0.8182
+        self.γ = 0.01
+        self.d1 = 0.0227
+        self.d2 = 0.20
 
-        self.constantes = {
-            "δ": δ,
-            "p": p,
-            "k": k,
-            "r1": r1,
-            "r2": r2,
-            "γ": γ,
-            "d1": d1,
-            "d2": d2,
-        }
+
         # VARIABLES DEL MUNDO
-        self.datos = np.empty()
+        self.datos = np.empty(0)
 
-    def actualizarValores(self, beta, lambda_var, phi, mu):
-        self.coef_transmision = beta
-        self.tasa_reclutamiento_suceptibles = lambda_var
-        self.tasa_infectados_resultan_perdidos = phi
-        self.tasa_muertes_naturales = mu
+    def actualizarValores(self, β, Λ, Φ, μ, δ, p, k, r1, r2, γ, d1, d2):
+        self.β = β
+        self.Λ = Λ
+        self.Φ = Φ
+        self.μ = μ
+        self.δ = δ
+        self.p = p
+        self.k = k
+        self.r1 = r1
+        self.r2 = r2
+        self.γ = γ
+        self.d1 = d1
+        self.d2 = d2
         self.calcularGrafica()
 
     def calcularGrafica(self):
