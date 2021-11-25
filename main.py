@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     model = ModeloSEIL()
 
-    exit_button = Button(root, text='X', command=quit, bg='#cb4f52',
+    exit_button = Button(root, text='X', command=quit, bg='#cb4f52', highlightbackground='#cb4f52',
                          fg='#ffffff', relief='flat', width=16)
     exit_button.grid(column=0, row=0)
 

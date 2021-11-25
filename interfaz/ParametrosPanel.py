@@ -21,8 +21,10 @@ class ParametrosPanel(Frame):
 
         ttk.Label(self, text='Parametros').grid(column=1, row=1, columnspan=4)
         label_style = ttk.Style()
+        label_style.theme_use('classic')
         label_style.configure('BW.TLabel',
                               background='#f4b183',
+                              highlightbackground='#f4b183',
                               foreground='white'
                               )
         β_label = ttk.Label(self, width=12, text='β', anchor='center', style='BW.TLabel')
@@ -87,7 +89,7 @@ class ParametrosPanel(Frame):
                  d2_entry]):
             i.grid(column=2 + (idx // 6 * 2), row=2 + idx % 6, ipadx=2, ipady=1)
 
-        refresh_btn = Button(self, text='Refresh', command=self.refresh, bg='#f4b183',
+        refresh_btn = Button(self, text='Refresh', command=self.refresh, bg='#f4b183', highlightbackground='#f4b183',
                              fg='#ffffff', relief='flat', width=16)
         refresh_btn.grid(row=8, column=1, columnspan=4, padx=20, pady=20)
     def refresh(self):
