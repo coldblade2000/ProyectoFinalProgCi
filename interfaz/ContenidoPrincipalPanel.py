@@ -17,8 +17,8 @@ class ContenidoPrincipalPanel(Frame):
         super().__init__(parent, **kw)
         self['borderwidth'] = 2
         self['relief'] = 'raised'
-        boton_exportar = Button(self, text='Exportar', relief='flat', width=16, bg="#D0433F")
-        boton_importar = Button(self, text='Importar', relief='flat', width=16, bg="#D0433F")
+        boton_exportar = Button(self, text='Exportar', relief='flat', width=16, bg="#D0433F", fg="#ffffff")
+        boton_importar = Button(self, text='Importar', relief='flat', width=16, bg="#D0433F", fg="#ffffff")
         boton_exportar.grid(column=1, row=1, columnspan=2)
         boton_importar.grid(column=2, row=1, columnspan=2)
 
@@ -27,7 +27,7 @@ class ContenidoPrincipalPanel(Frame):
         # plt.style.use('_mpl-gallery')
 
         ax = fig.add_subplot(111)
-        ax.plot(linewidth=2.0)  # aqui va la ecuacion ax.plot(t, t**2, line...)
+        ax.plot(t, t, linewidth=2.0)  # aqui va la ecuacion ax.plot(t, t**2, line...)
         ax.set_ylabel("Población")
         ax.set_xlabel("t (Tiempo en años)")
 
