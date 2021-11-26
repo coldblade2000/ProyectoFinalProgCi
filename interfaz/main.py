@@ -32,7 +32,7 @@ root = None
 if __name__ == '__main__':
     # Creamos la pantalla root y el frame de contenido mainframe
     root = Tk()
-    root.geometry('1200x800')
+    root.geometry('1400x800')
     root.title("Proyecto Final Programacion Cientifica")
     mainframe = MainInterface(root, padding="3 3 12 12")
     mainframe.grid(column=0, row=1, columnspan=2, sticky=(N, W, E, S))
