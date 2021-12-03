@@ -2,6 +2,11 @@ import struct as st
 
 import numpy as np
 
+EULER_FORWARD = "EF"
+EULER_BACKWARS = "EB"
+RUNGEKUTTA2 = "RK2"
+RUNGEKUTTA4 = "RK4"
+
 
 class ModeloSEIL:
     def __init__(self):
@@ -10,7 +15,7 @@ class ModeloSEIL:
         # β beta
         self.β = 0.025
         # Λ lambda
-        self.Λ = 1/2
+        self.Λ = 1 / 2
         # Φ, phi
         self.Φ = 0.02
         # μ, mu
@@ -24,7 +29,6 @@ class ModeloSEIL:
         self.γ = 0.01
         self.d1 = 0.0227
         self.d2 = 0.20
-
 
         # VARIABLES DEL MUNDO
         self.datos = np.empty(0)
@@ -44,9 +48,10 @@ class ModeloSEIL:
         self.d2 = d2
         self.calcularGrafica()
 
-    def calcularGrafica(self):
+    def calcularGrafica(self, metodo):
         # TODO calcular esto
-        print('TEMPORAL, BORRAME')
+        if metodo == EULER_FORWARD:
+            print(EULER_FORWARD)
 
     def importarDatos(self, path: str):
         file = open(path, 'rb')
@@ -58,9 +63,21 @@ class ModeloSEIL:
 
     def exportarDatos(self, path):
         file = open(path, 'wb')
-        packed = st.pack("d"*int(len(self.datos)), *self.datos)
+        packed = st.pack("d" * int(len(self.datos)), *self.datos)
         file.write(packed)
         file.close()
 
+    # ecuaciones diferenciales
 
+    def FS(self, s, i, l):
+        return self.Λ + self.β * s * (i + self.δ * l) - self.μ * s
 
+    def FE(self, s, e, i, l):
+        return self.β * (1 - self.p) * s * (i + self.δ * l) + self.r2 * i - (self.μ + self.k * (1 - self.r1)) * e
+
+    def SI(self, s, e, i, l):
+        return self.β * self.p * s * (i + self.δ * l) + self.k * \
+               (1 - self.r1) * e + self.γ * l - (self.μ + self.d1 + self.Φ * (1 - self.r2) + self.r2) * i
+
+    def SL(self, i, l):
+        return self.Φ * (1 - self.r2) * i - (self.μ + self.d2 + self.γ) * l
