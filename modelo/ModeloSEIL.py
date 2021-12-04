@@ -80,8 +80,14 @@ class ModeloSEIL:
 
         if metodo == EULER_FORWARD:
             S, E, I, L = self.euler_forward(S, E, I, L, t)
-        if metodo == EULER_BACKWARDS:
+        elif metodo == EULER_BACKWARDS:
             S, E, I, L = self.euler_backward(S, E, I, L, t)
+        elif metodo == EULER_MODIFIED:
+            S, E, I, L = self.euler_modified(S, E, I, L, t)
+        elif metodo == RUNGEKUTTA2:
+            S, E, I, L = self.runge_kutta_2(S, E, I, L, t)
+        elif metodo == RUNGEKUTTA4:
+            S, E, I, L = self.runge_kutta_4(S, E, I, L, t)
         elif metodo == SOLVE_IVP:
             S, E, I, L = self.solve_ivp_method(t)
 
@@ -116,9 +122,10 @@ class ModeloSEIL:
     def FL(self, i, l):
         return self.Φ * (1 - self.r2) * i - (self.μ + self.d2 + self.γ) * l
 
+    # Algoritmos de solucion
+
     def euler_forward(self, S, E, I, L, t):
         for i in range(1, len(t)):
-            print(i)
             S[i] = S[i - 1] + self.h * self.FS(S[i - 1], I[i - 1], L[i - 1])
             E[i] = E[i - 1] + self.h * self.FE(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             I[i] = I[i - 1] + self.h * self.FI(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
@@ -128,11 +135,28 @@ class ModeloSEIL:
     def euler_backward(self, S, E, I, L, t):
         Sf, Ef, If, Lf = self.euler_forward(S, E, I, L, t)
         for i in range(1, len(t)):
-            print(i)
             S[i] = S[i - 1] + self.h * self.FS(Sf[i], If[i], Lf[i])
             E[i] = E[i - 1] + self.h * self.FE(Sf[i], Ef[i], If[i], Lf[i])
             I[i] = I[i - 1] + self.h * self.FI(Sf[i], Ef[i], If[i], Lf[i])
             L[i] = L[i - 1] + self.h * self.FL(If[i], Lf[i])
+        return S, E, I, L
+
+    def euler_modified(self, S, E, I, L, t):
+        #TODO Implementar
+        for i in range(1, len(t)):
+            print()
+        return S, E, I, L
+
+    def runge_kutta_2(self, S, E, I, L, t):
+        #TODO Implementar
+        for i in range(1, len(t)):
+            print()
+        return S, E, I, L
+
+    def runge_kutta_4(self, S, E, I, L, t):
+        #TODO Implementar
+        for i in range(1, len(t)):
+            print()
         return S, E, I, L
 
     def solve_ivp_method(self, t):
