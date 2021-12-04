@@ -17,7 +17,7 @@ class ModeloSEIL:
         # β beta
         self.β = 0.025
         # Λ lambda
-        self.Λ = 1 / 2
+        self.Λ = 2
         # Φ, phi
         self.Φ = 0.02
         # μ, mu
@@ -38,11 +38,11 @@ class ModeloSEIL:
         self.e_0 = 1
         self.i_0 = 0
         self.l_0 = 0
-        self.h = 0.0001
+        self.h = 0.001
 
         # VARIABLES DEL MUNDO
         self.datos = np.empty(0)
-        self.anios_maximos = 5
+        self.anios_maximos = 8
 
     def actualizarValores(self, β, Λ, Φ, μ, δ, p, k, r1, r2, γ, d1, d2):
         self.β = β
@@ -75,7 +75,7 @@ class ModeloSEIL:
         if metodo == EULER_FORWARD:
             S, E, I, L = self.euler_forward(S, E, I, L, t)
 
-        return S, E, I, L
+        return S, E, I, L, t
 
     def importarDatos(self, path: str):
         file = open(path, 'rb')
@@ -100,14 +100,15 @@ class ModeloSEIL:
         return self.β * (1 - self.p) * s * (i + self.δ * l) + self.r2 * i - (self.μ + self.k * (1 - self.r1)) * e
 
     def FI(self, s, e, i, l):
-        return self.β * self.p * s * (i + self.δ * l) + self.k * \
-               (1 - self.r1) * e + self.γ * l - (self.μ + self.d1 + self.Φ * (1 - self.r2) + self.r2) * i
+        return self.β * self.p * s * (i + self.δ * l) + self.k * (1 - self.r1) * e + \
+               self.γ * l - (self.μ + self.d1 + self.Φ * (1 - self.r2) + self.r2) * i
 
     def FL(self, i, l):
         return self.Φ * (1 - self.r2) * i - (self.μ + self.d2 + self.γ) * l
 
     def euler_forward(self, S, E, I, L, t):
         for i in range(1, len(t)):
+            print(i)
             S[i] = S[i - 1] + self.h * self.FS(S[i - 1], I[i - 1], L[i - 1])
             E[i] = E[i - 1] + self.h * self.FE(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             I[i] = I[i - 1] + self.h * self.FI(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
