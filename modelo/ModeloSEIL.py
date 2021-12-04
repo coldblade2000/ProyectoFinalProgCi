@@ -3,7 +3,7 @@ from scipy.integrate import solve_ivp
 import numpy as np
 
 EULER_FORWARD = "EF"
-EULER_BACKWARS = "EB"
+EULER_BACKWARDS = "EB"
 EULER_MODIFIED = "EM"
 RUNGEKUTTA2 = "RK2"
 RUNGEKUTTA4 = "RK4"
@@ -74,6 +74,8 @@ class ModeloSEIL:
 
         if metodo == EULER_FORWARD:
             S, E, I, L = self.euler_forward(S, E, I, L, t)
+        if metodo == EULER_BACKWARDS:
+            S, E, I, L = self.euler_backward(S, E, I, L, t)
         elif metodo == SOLVE_IVP:
             S, E, I, L = self.solve_ivp_method(t)
 
@@ -110,14 +112,22 @@ class ModeloSEIL:
         return self.Φ * (1 - self.r2) * i - (self.μ + self.d2 + self.γ) * l
 
     def euler_forward(self, S, E, I, L, t):
-        arr = np.array([S, E, I, L])
         for i in range(1, len(t)):
             print(i)
             S[i] = S[i - 1] + self.h * self.FS(S[i - 1], I[i - 1], L[i - 1])
             E[i] = E[i - 1] + self.h * self.FE(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             I[i] = I[i - 1] + self.h * self.FI(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             L[i] = L[i - 1] + self.h * self.FL(I[i - 1], L[i - 1])
-            arr = np.array([S, E, I, L])
+        return S, E, I, L
+
+    def euler_backward(self, S, E, I, L, t):
+        Sf, Ef, If, Lf = self.euler_forward(S, E, I, L, t)
+        for i in range(1, len(t)):
+            print(i)
+            S[i] = S[i - 1] + self.h * self.FS(Sf[i], If[i], Lf[i])
+            E[i] = E[i - 1] + self.h * self.FE(Sf[i], Ef[i], If[i], Lf[i])
+            I[i] = I[i - 1] + self.h * self.FI(Sf[i], Ef[i], If[i], Lf[i])
+            L[i] = L[i - 1] + self.h * self.FL(If[i], Lf[i])
         return S, E, I, L
 
     def solve_ivp_method(self, t):
