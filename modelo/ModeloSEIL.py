@@ -1,5 +1,5 @@
 import struct as st
-
+from scipy.integrate import solve_ivp
 import numpy as np
 
 EULER_FORWARD = "EF"
@@ -38,11 +38,12 @@ class ModeloSEIL:
         self.e_0 = 1
         self.i_0 = 0
         self.l_0 = 0
-        self.h = 0.001
+        self.h = 0.5
 
         # VARIABLES DEL MUNDO
         self.datos = np.empty(0)
-        self.anios_maximos = 8
+        self.anios_maximos = 20
+        self.metodo_actual = EULER_FORWARD
 
     def actualizarValores(self, β, Λ, Φ, μ, δ, p, k, r1, r2, γ, d1, d2):
         self.β = β
@@ -57,10 +58,9 @@ class ModeloSEIL:
         self.γ = γ
         self.d1 = d1
         self.d2 = d2
-        self.calcularGrafica()
+        self.calcularGrafica(self.metodo_actual)
 
-    def calcularGrafica(self, metodo):
-        # TODO calcular esto
+    def calcularGrafica(self, metodo=EULER_FORWARD):
         t = np.arange(0, self.anios_maximos, self.h)
         N = len(t)
         S = np.empty(N)
@@ -74,6 +74,9 @@ class ModeloSEIL:
 
         if metodo == EULER_FORWARD:
             S, E, I, L = self.euler_forward(S, E, I, L, t)
+        elif metodo == SOLVE_IVP:
+            S, E, I, L = self.solve_ivp_method(t)
+
 
         return S, E, I, L, t
 
@@ -94,7 +97,7 @@ class ModeloSEIL:
     # ecuaciones diferenciales
 
     def FS(self, s, i, l):
-        return self.Λ + self.β * s * (i + self.δ * l) - self.μ * s
+        return self.Λ - self.β * s * (i + self.δ * l) - self.μ * s
 
     def FE(self, s, e, i, l):
         return self.β * (1 - self.p) * s * (i + self.δ * l) + self.r2 * i - (self.μ + self.k * (1 - self.r1)) * e
@@ -107,11 +110,30 @@ class ModeloSEIL:
         return self.Φ * (1 - self.r2) * i - (self.μ + self.d2 + self.γ) * l
 
     def euler_forward(self, S, E, I, L, t):
+        arr = np.array([S, E, I, L])
         for i in range(1, len(t)):
             print(i)
             S[i] = S[i - 1] + self.h * self.FS(S[i - 1], I[i - 1], L[i - 1])
             E[i] = E[i - 1] + self.h * self.FE(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             I[i] = I[i - 1] + self.h * self.FI(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             L[i] = L[i - 1] + self.h * self.FL(I[i - 1], L[i - 1])
-
+            arr = np.array([S, E, I, L])
         return S, E, I, L
+
+    def solve_ivp_method(self, t):
+        p = (self.β, self.Λ, self.Φ, self.μ, self.δ, self.p, self.k, self.r1, self.r2, self.γ, self.d1, self.d2)
+        y0 = [self.s_0, self.e_0, self.i_0, self.l_0]
+        result = solve_ivp(self.s_ivp_function, (0, self.anios_maximos), y0, method='RK45', t_eval=t, args=p)
+        S = result.y[0]
+        E = result.y[1]
+        I = result.y[2]
+        L = result.y[3]
+        return S, E, I, L
+
+    def s_ivp_function(self, t, y, β, Λ, Φ, μ, δ, p, k, r1, r2, γ, d1, d2):
+        s, e, i, l = y
+        return np.array([Λ - β * s * (i + δ * l) - μ * s,
+                        β * (1 - p) * s * (i + δ * l) + r2 * i - (μ + k * (1 - r1)) * e,
+                        β * p * s * (i + δ * l) + k * (1 - r1) * e + \
+                        γ * l - (μ + d1 + Φ * (1 - r2) + r2) * i,
+                        Φ * (1 - r2) * i - (μ + d2 + γ) * l])
