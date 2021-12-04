@@ -7,22 +7,27 @@ from modelo.ModeloSEIL import *
 class SolucionesPanel(Frame):
     def sel_euler_forward(self):
         self.model.metodo_actual = EULER_FORWARD
+        self.parent.refresh()
 
     def sel_euler_backwards(self):
         self.model.metodo_actual = EULER_BACKWARDS
+        self.parent.refresh()
 
     def sel_euler_modified(self):
         self.model.metodo_actual = EULER_MODIFIED
+        self.parent.refresh()
 
     def sel_rk2(self):
         self.model.metodo_actual = RUNGEKUTTA2
+        self.parent.refresh()
 
     def sel_rk4(self):
         self.model.metodo_actual = RUNGEKUTTA4
+        self.parent.refresh()
 
     def sel_solve_ivp(self):
         self.model.metodo_actual = SOLVE_IVP
-
+        self.parent.refresh()
 
     def __init__(self, model: ModeloSEIL, parent=None, **kw):
         super().__init__(parent, **kw)
@@ -56,19 +61,22 @@ class SolucionesPanel(Frame):
         eu_mod.grid(row=3, column=1, columnspan=1, padx=16, pady=8)
         #
         RK_2 = Button(self, text='Runge-Kutta 2', bg='#f4b183', highlightbackground='#f4b183',
-                        command=self.sel_rk2,
+                      command=self.sel_rk2,
                       fg='#ffffff', relief='flat', font=('Calibri', 12, 'normal'), height=2, width=16)
         RK_2.grid(row=1, column=2, columnspan=1, padx=16, pady=8)
         #
         RK_4 = Button(self, text='Runge-Kutta 4', bg='#f4b183', highlightbackground='#f4b183',
-                        command=self.sel_rk4,
+                      command=self.sel_rk4,
                       fg='#ffffff', relief='flat', font=('Calibri', 12, 'normal'), height=2, width=16)
         RK_4.grid(row=2, column=2, columnspan=1, padx=16, pady=8)
 
         S_IVP = Button(self, text='Solve_ivp', bg='#f4b183', highlightbackground='#f4b183',
-                      command=self.sel_solve_ivp,
-                      fg='#ffffff', relief='flat', font=('Calibri', 12, 'normal'), height=2, width=16)
+                       command=self.sel_solve_ivp,
+                       fg='#ffffff', relief='flat', font=('Calibri', 12, 'normal'), height=2, width=16)
         S_IVP.grid(row=3, column=2, columnspan=1, padx=16, pady=8)
+
+    def setParent(self, parent):
+        self.parent = parent
 
     def start(self):
         self.mainloop()

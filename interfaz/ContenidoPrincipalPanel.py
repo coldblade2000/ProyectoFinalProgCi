@@ -43,11 +43,13 @@ class ContenidoPrincipalPanel(Frame):
         ax.grid()
         ax.set_ylabel("Población")
         ax.set_xlabel("t (Tiempo en años)")
-
+        self.grafica.draw()
+        self.grafica.get_tk_widget().grid(column=1, columnspan=4, row=2)
 
     def __init__(self, model: ModeloSEIL, parent=None, **kw):
         super().__init__(parent, **kw)
         self.model = model
+        self.parent = parent
         self['borderwidth'] = 2
         self['relief'] = 'raised'
         boton_exportar = Button(self, text='Exportar', relief='flat', width=16, bg="#D0433F", fg="#ffffff")
@@ -60,12 +62,11 @@ class ContenidoPrincipalPanel(Frame):
 
         self.ax = self.fig.add_subplot(111)
 
+        self.grafica = FigureCanvasTkAgg(self.fig, master=self)
         self.render()
 
-        self.grafica = FigureCanvasTkAgg(self.fig, master=self)
-        self.grafica.draw()
 
-        self.grafica.get_tk_widget().grid(column=1, columnspan=4, row=2)
+
 
         s_var = BooleanVar()
         e_var = BooleanVar()
@@ -97,6 +98,9 @@ class ContenidoPrincipalPanel(Frame):
 
         date = ttk.Label(master=self, text="Años")
         date.grid(column=4, row=5)
+
+    def setParent(self, parent):
+        self.parent = parent
 
     def start(self):
         self.mainloop()

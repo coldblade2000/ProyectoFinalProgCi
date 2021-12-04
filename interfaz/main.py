@@ -6,6 +6,7 @@ from interfaz.ParametrosPanel import ParametrosPanel
 from interfaz.SolucionesPanel import SolucionesPanel
 from modelo.ModeloSEIL import ModeloSEIL
 
+
 class MainInterface(ttk.Frame):
     def __init__(self, parent=None, **kw):
         super().__init__(parent, **kw)
@@ -20,11 +21,9 @@ class MainInterface(ttk.Frame):
         self.parametros = parametros
         self.contenidoPrincipal = contenidoPrincipal
 
+    def refresh(self):
+        self.contenidoPrincipal.render()
 
-    def refresh(self, β_var, Λ_var, Φ_var, μ_var, δ_var, p_var, k_var,
-                            r1_var, r2_var, γ_var, d1_var, d2_var):
-        print("refresh", β_var, Λ_var, Φ_var, μ_var, δ_var, p_var, k_var,
-                            r1_var, r2_var, γ_var, d1_var, d2_var)
 
 root = None
 
@@ -60,13 +59,15 @@ if __name__ == '__main__':
     soluciones_panel = SolucionesPanel(model, mainframe)
     soluciones_panel.grid(column=2, row=2)
 
+    mainframe.registerPanels(contenido_principal_panel, parametros_panel, soluciones_panel, model)
+    contenido_principal_panel.setParent(mainframe)
+    parametros_panel.setParent(mainframe)
+    soluciones_panel.setParent(mainframe)
     contenido_principal_panel.start()
     parametros_panel.start()
     soluciones_panel.start()
-    mainframe.registerPanels(contenido_principal_panel, parametros_panel, soluciones_panel, model)
     root.mainloop()
 
 
 def quit():
     root.destroy()
-

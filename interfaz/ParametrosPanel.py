@@ -7,6 +7,7 @@ from modelo.ModeloSEIL import ModeloSEIL
 class ParametrosPanel(Frame):
     def __init__(self, model: ModeloSEIL, parent=None, **kw):
         super().__init__(parent, **kw)
+        self.model = model
         self.parent = parent
         self['borderwidth'] = 2
         self['relief'] = 'raised'
@@ -93,9 +94,12 @@ class ParametrosPanel(Frame):
                              fg='#ffffff', relief='flat', width=16)
         refresh_btn.grid(row=8, column=1, columnspan=4, padx=20, pady=20)
     def refresh(self):
+        self.model.actualizarValores(self.β_var.get(), self.Λ_var.get(), self.Φ_var.get(), self.μ_var.get(), self.δ_var.get(), self.p_var.get(), self.k_var.get(),
+                            self.r1_var.get(), self.r2_var.get(), self.γ_var.get(), self.d1_var.get(), self.d2_var.get())
+        self.parent.refresh()
 
-        self.parent.refresh(self.β_var, self.Λ_var, self.Φ_var, self.μ_var, self.δ_var, self.p_var, self.k_var,
-                            self.r1_var, self.r2_var, self.γ_var, self.d1_var, self.d2_var)
+    def setParent(self, parent):
+        self.parent = parent
 
     def start(self):
         self.mainloop()
