@@ -65,21 +65,23 @@ class ContenidoPrincipalPanel(Frame):
         self.grafica = FigureCanvasTkAgg(self.fig, master=self)
         self.render()
 
+        self.s_var = IntVar()
+        self.e_var = IntVar()
+        self.i_var = IntVar()
+        self.l_var = IntVar()
 
+        self.s_var.set(1)
+        self.e_var.set(1)
+        self.i_var.set(1)
+        self.l_var.set(1)
 
-
-        s_var = BooleanVar()
-        e_var = BooleanVar()
-        i_var = BooleanVar()
-        l_var = BooleanVar()
-
-        s_boton = ttk.Checkbutton(self, variable=s_var, text="S(t)")
+        s_boton = ttk.Checkbutton(self, variable=self.s_var, text="S(t)", command=self.change_selections)
         s_boton.grid(column=1, row=3)
-        e_boton = ttk.Checkbutton(self, variable=e_var, text="E(t)")
+        e_boton = ttk.Checkbutton(self, variable=self.e_var, text="E(t)", command=self.change_selections)
         e_boton.grid(column=2, row=3)
-        i_boton = ttk.Checkbutton(self, variable=i_var, text="I(t)")
+        i_boton = ttk.Checkbutton(self, variable=self.i_var, text="I(t)", command=self.change_selections)
         i_boton.grid(column=3, row=3)
-        l_boton = ttk.Checkbutton(self, variable=l_var, text="L(t)")
+        l_boton = ttk.Checkbutton(self, variable=self.l_var, text="L(t)", command=self.change_selections)
         l_boton.grid(column=4, row=3)
 
         tiempo = ttk.Label(master=self, text="Tiempo de simulación")
@@ -98,6 +100,16 @@ class ContenidoPrincipalPanel(Frame):
 
         date = ttk.Label(master=self, text="Años")
         date.grid(column=4, row=5)
+
+    def change_selections(self):
+        funciones_visibles = {
+            "S": self.s_var.get() == 1,
+            "E": self.e_var.get() == 1,
+            "I": self.i_var.get() == 1,
+            "L": self.l_var.get() == 1,
+        }
+        self.model.funciones_visibles = funciones_visibles
+        self.parent.refresh()
 
     def setParent(self, parent):
         self.parent = parent
