@@ -4,7 +4,7 @@ import numpy as np
 
 modelo = ModeloSEIL()
 
-S, E, I, L, t = modelo.calcularGrafica(SOLVE_IVP)
+S, E, I, L, t = modelo.calcularGrafica(EULER_FORWARD)
 
 plt.plot(t, S, 'b--', label='S')
 plt.plot(t, E, 'g--', label='E')
