@@ -44,6 +44,12 @@ class ModeloSEIL:
         self.datos = np.empty(0)
         self.anios_maximos = 20
         self.metodo_actual = EULER_FORWARD
+        self.funciones_visibles = {
+            "S": True,
+            "E": True,
+            "I": True,
+            "L": True,
+        }
 
     def actualizarValores(self, β, Λ, Φ, μ, δ, p, k, r1, r2, γ, d1, d2):
         self.β = β
@@ -60,7 +66,7 @@ class ModeloSEIL:
         self.d2 = d2
         self.calcularGrafica(self.metodo_actual)
 
-    def calcularGrafica(self, metodo=EULER_FORWARD):
+    def calcularGrafica(self, metodo):
         t = np.arange(0, self.anios_maximos, self.h)
         N = len(t)
         S = np.empty(N)
@@ -78,7 +84,6 @@ class ModeloSEIL:
             S, E, I, L = self.euler_backward(S, E, I, L, t)
         elif metodo == SOLVE_IVP:
             S, E, I, L = self.solve_ivp_method(t)
-
 
         return S, E, I, L, t
 
@@ -143,7 +148,7 @@ class ModeloSEIL:
     def s_ivp_function(self, t, y, β, Λ, Φ, μ, δ, p, k, r1, r2, γ, d1, d2):
         s, e, i, l = y
         return np.array([Λ - β * s * (i + δ * l) - μ * s,
-                        β * (1 - p) * s * (i + δ * l) + r2 * i - (μ + k * (1 - r1)) * e,
-                        β * p * s * (i + δ * l) + k * (1 - r1) * e + \
-                        γ * l - (μ + d1 + Φ * (1 - r2) + r2) * i,
-                        Φ * (1 - r2) * i - (μ + d2 + γ) * l])
+                         β * (1 - p) * s * (i + δ * l) + r2 * i - (μ + k * (1 - r1)) * e,
+                         β * p * s * (i + δ * l) + k * (1 - r1) * e + \
+                         γ * l - (μ + d1 + Φ * (1 - r2) + r2) * i,
+                         Φ * (1 - r2) * i - (μ + d2 + γ) * l])

@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 
-from modelo.ModeloSEIL import ModeloSEIL
+from modelo.ModeloSEIL import *
 
 import tkinter
 import matplotlib
@@ -13,8 +13,41 @@ import numpy as np
 
 
 class ContenidoPrincipalPanel(Frame):
+    def render(self):
+        S, E, I, L, t = self.model.calcularGrafica(self.model.metodo_actual)
+        ax = self.ax
+        ax.cla()
+        metodo = self.model.metodo_actual
+        TITULO = 'Solucion del modelo SEIL '
+        if metodo == EULER_FORWARD:
+            ax.set_title(TITULO + "(Euler hacia adelante)")
+        elif metodo == EULER_BACKWARDS:
+            ax.set_title(TITULO + "(Euler hacia atraz)")
+        elif metodo == EULER_MODIFIED:
+            ax.set_title(TITULO + "(Euler modificado)")
+        elif metodo == RUNGEKUTTA2:
+            ax.set_title(TITULO + "(Runge-Kutta de 2do orden)")
+        elif metodo == RUNGEKUTTA4:
+            ax.set_title(TITULO + "(Runge-Kutta de 4do orden)")
+        elif metodo == SOLVE_IVP:
+            ax.set_title(TITULO + "(Solve_ivp)")
+        if self.model.funciones_visibles['S']:
+            ax.plot(t, S, 'b--', label='S')
+        if self.model.funciones_visibles['E']:
+            ax.plot(t, E, 'g--', label='E')
+        if self.model.funciones_visibles['I']:
+            ax.plot(t, I, 'r--', label='I')
+        if self.model.funciones_visibles['L']:
+            ax.plot(t, L, 'm--', label='L')
+        ax.legend()
+        ax.grid()
+        ax.set_ylabel("Población")
+        ax.set_xlabel("t (Tiempo en años)")
+
+
     def __init__(self, model: ModeloSEIL, parent=None, **kw):
         super().__init__(parent, **kw)
+        self.model = model
         self['borderwidth'] = 2
         self['relief'] = 'raised'
         boton_exportar = Button(self, text='Exportar', relief='flat', width=16, bg="#D0433F", fg="#ffffff")
@@ -22,18 +55,17 @@ class ContenidoPrincipalPanel(Frame):
         boton_exportar.grid(column=1, row=1, columnspan=2)
         boton_importar.grid(column=2, row=1, columnspan=2)
 
-        fig = plt.Figure(figsize=(8, 4), dpi=100)
-        t = np.arange(0, 3, .01)
+        self.fig = plt.Figure(figsize=(8, 4), dpi=100)
         # plt.style.use('_mpl-gallery')
 
-        ax = fig.add_subplot(111)
-        ax.plot(t, t, linewidth=2.0)  # aqui va la ecuacion ax.plot(t, t**2, line...)
-        ax.set_ylabel("Población")
-        ax.set_xlabel("t (Tiempo en años)")
+        self.ax = self.fig.add_subplot(111)
 
-        grafica = FigureCanvasTkAgg(fig, master=self)
-        grafica.draw()
-        grafica.get_tk_widget().grid(column=1, columnspan=4, row=2)
+        self.render()
+
+        self.grafica = FigureCanvasTkAgg(self.fig, master=self)
+        self.grafica.draw()
+
+        self.grafica.get_tk_widget().grid(column=1, columnspan=4, row=2)
 
         s_var = BooleanVar()
         e_var = BooleanVar()
