@@ -1,5 +1,7 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter.filedialog import asksaveasfile
+from tkinter.messagebox import showinfo
 
 from modelo.ModeloSEIL import *
 
@@ -8,13 +10,18 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 from matplotlib.figure import Figure
-
+from tkinter import filedialog as fd
 import numpy as np
 
 
 class ContenidoPrincipalPanel(Frame):
-    def render(self):
-        S, E, I, L, t = self.model.calcularGrafica(self.model.metodo_actual)
+    def render(self, path=None):
+        S, E, I, L, t = None, None, None, None, None
+        if path == None:
+            S, E, I, L, t = self.model.calcularGrafica(self.model.metodo_actual)
+        else:
+            S, E, I, L, t = self.model.importarDatos(path)
+        self.model.actualizar_datos(S, E, I, L, t)
         ax = self.ax
         ax.cla()
         metodo = self.model.metodo_actual
@@ -46,14 +53,34 @@ class ContenidoPrincipalPanel(Frame):
         self.grafica.draw()
         self.grafica.get_tk_widget().grid(column=1, columnspan=4, row=2)
 
+    def import_file(self):
+        filetypes = (
+            ('simulation files', '*.sim'),
+        )
+
+        filename = fd.askopenfilename(
+            title='Open a simulation file',
+            initialdir='/',
+            filetypes=filetypes)
+
+
+        self.render(path=filename)
+
+    def export_file(self):
+        files = [('Simulation files', '*.sim')]
+        file = asksaveasfile(mode='wb', filetypes=files, defaultextension=files)
+        self.model.exportarDatos(file)
+
     def __init__(self, model: ModeloSEIL, parent=None, **kw):
         super().__init__(parent, **kw)
         self.model = model
         self.parent = parent
         self['borderwidth'] = 2
         self['relief'] = 'raised'
-        boton_exportar = Button(self, text='Exportar', relief='flat', width=16, bg="#D0433F", fg="#ffffff")
-        boton_importar = Button(self, text='Importar', relief='flat', width=16, bg="#D0433F", fg="#ffffff")
+        boton_exportar = Button(self, text='Exportar', relief='flat', width=16, bg="#D0433F", fg="#ffffff",
+                                command=self.export_file)
+        boton_importar = Button(self, text='Importar', relief='flat', width=16, bg="#D0433F", fg="#ffffff",
+                                command=self.import_file)
         boton_exportar.grid(column=1, row=1, columnspan=2)
         boton_importar.grid(column=2, row=1, columnspan=2)
 

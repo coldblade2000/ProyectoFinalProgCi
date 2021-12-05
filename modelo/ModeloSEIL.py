@@ -66,8 +66,17 @@ class ModeloSEIL:
         self.d2 = d2
         self.calcularGrafica(self.metodo_actual)
 
+    def actualizar_datos(self, S, E, I, L, t):
+        self.datos = {
+            "S": S,
+            "E": E,
+            "I": I,
+            "L": L,
+            "t": t
+        }
+
     def calcularGrafica(self, metodo):
-        t = np.arange(0, self.anios_maximos, self.h)
+        t = np.arange(0, self.anios_maximos + self.h, self.h)
         N = len(t)
         S = np.empty(N)
         E = np.empty(N)
@@ -96,14 +105,52 @@ class ModeloSEIL:
     def importarDatos(self, path: str):
         file = open(path, 'rb')
         content = file.read()
-        doublecount = int(len(content) / 4)
+        doublecount = int(len(content) / 8)
         unpacked = st.unpack("d" * doublecount, content)
-        self.datos = np.array(unpacked)
+        metodo = int(unpacked[-1])
+        if metodo == 0:
+            self.metodo_actual = EULER_FORWARD
+        elif metodo == 1:
+            self.metodo_actual = EULER_BACKWARDS
+        elif metodo == 2:
+            self.metodo_actual = EULER_MODIFIED
+        elif metodo == 3:
+            self.metodo_actual = RUNGEKUTTA2
+        elif metodo == 4:
+            self.metodo_actual = RUNGEKUTTA4
+        elif metodo == 5:
+            self.metodo_actual = SOLVE_IVP
+        doublecount -= 1
+        # self.datos = np.array(unpacked)
         file.close()
+        N = doublecount // 5
+        self.anios_maximos = int(unpacked[N - 1])
+        t = np.array(unpacked[0:N])
+        S = np.array(unpacked[N:2 * N])
+        E = np.array(unpacked[2 * N: 3 * N])
+        I = np.array(unpacked[3 * N: 4 * N])
+        L = np.array(unpacked[4 * N: 5 * N])
 
-    def exportarDatos(self, path):
-        file = open(path, 'wb')
-        packed = st.pack("d" * int(len(self.datos)), *self.datos)
+        return S, E, I, L, t
+
+    def exportarDatos(self, file):
+        datos = np.concatenate((self.datos['t'], self.datos['S'], self.datos['E'], self.datos['I'], self.datos['L']))
+        metodo = None
+        if self.metodo_actual == EULER_FORWARD:
+            metodo = 0
+        elif self.metodo_actual == EULER_BACKWARDS:
+            metodo = 1
+        elif self.metodo_actual == EULER_MODIFIED:
+            metodo = 2
+        elif self.metodo_actual == RUNGEKUTTA2:
+            metodo = 3
+        elif self.metodo_actual == RUNGEKUTTA4:
+            metodo = 4
+        elif self.metodo_actual == SOLVE_IVP:
+            metodo = 5
+
+        datos = np.append(datos, metodo)
+        packed = st.pack("d" * int(len(datos)), *datos)
         file.write(packed)
         file.close()
 
@@ -154,8 +201,10 @@ class ModeloSEIL:
             kI1 = self.FI(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             kL1 = self.FL(I[i - 1], L[i - 1])
             kS2 = self.FS(S[i - 1] + self.h * kS1, I[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
-            kE2 = self.FE(S[i - 1] + self.h * kS1, E[i - 1] + self.h * kE1, I[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
-            kI2 = self.FI(S[i - 1] + self.h * kS1, E[i - 1] + self.h * kE1, I[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
+            kE2 = self.FE(S[i - 1] + self.h * kS1, E[i - 1] + self.h * kE1, I[i - 1] + self.h * kI1,
+                          L[i - 1] + self.h * kL1)
+            kI2 = self.FI(S[i - 1] + self.h * kS1, E[i - 1] + self.h * kE1, I[i - 1] + self.h * kI1,
+                          L[i - 1] + self.h * kL1)
             kL2 = self.FL(I[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
             S[i] = S[i - 1] + (self.h / 2) * (kS1 + kS2)
             E[i] = E[i - 1] + (self.h / 2) * (kE1 + kE2)
