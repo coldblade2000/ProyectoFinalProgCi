@@ -153,10 +153,10 @@ class ModeloSEIL:
             kE1 = self.FE(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             kI1 = self.FI(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             kL1 = self.FL(I[i - 1], L[i - 1])
-            kS2 = self.FS(S[i - 1] + self.h, I[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
-            kE2 = self.FE(S[i - 1] + self.h, E[i - 1] + self.h * kI1, L[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
-            kI2 = self.FI(S[i - 1] + self.h, E[i - 1] + self.h * kI1, L[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
-            kL2 = self.FL(I[i - 1] + self.h, L[i - 1] + self.h * kL1)
+            kS2 = self.FS(S[i - 1] + self.h * kS1, I[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
+            kE2 = self.FE(S[i - 1] + self.h * kS1, E[i - 1] + self.h * kE1, I[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
+            kI2 = self.FI(S[i - 1] + self.h * kS1, E[i - 1] + self.h * kE1, I[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
+            kL2 = self.FL(I[i - 1] + self.h * kI1, L[i - 1] + self.h * kL1)
             S[i] = S[i - 1] + (self.h / 2) * (kS1 + kS2)
             E[i] = E[i - 1] + (self.h / 2) * (kE1 + kE2)
             I[i] = I[i - 1] + (self.h / 2) * (kI1 + kI2)
@@ -165,51 +165,52 @@ class ModeloSEIL:
 
     def runge_kutta_4(self, S, E, I, L, t):
         for i in range(1, len(t)):
-            print(i)
             kS1 = self.FS(S[i - 1], I[i - 1], L[i - 1])
             kE1 = self.FE(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             kI1 = self.FI(S[i - 1], E[i - 1], I[i - 1], L[i - 1])
             kL1 = self.FL(I[i - 1], L[i - 1])
 
-            kS2 = self.FS(S[i - 1] + 0.5 * self.h,
+            kS2 = self.FS(S[i - 1] + 0.5 * self.h * kS1,
                           I[i - 1] + 0.5 * self.h * kI1,
                           L[i - 1] + 0.5 * self.h * kL1)
-            kE2 = self.FE(S[i - 1] + self.h,
-                          E[i - 1] + 0.5 * self.h * kI1,
+            kE2 = self.FE(S[i - 1] + 0.5 * self.h * kS1,
+                          E[i - 1] + 0.5 * self.h * kE1,
                           I[i - 1] + 0.5 * self.h * kI1,
                           L[i - 1] + 0.5 * self.h * kL1)
-            kI2 = self.FI(S[i - 1] + self.h,
-                          E[i - 1] + 0.5 * self.h * kI1,
+            kI2 = self.FI(S[i - 1] + 0.5 * self.h * kS1,
+                          E[i - 1] + 0.5 * self.h * kE1,
                           I[i - 1] + 0.5 * self.h * kI1,
                           L[i - 1] + 0.5 * self.h * kL1)
-            kL2 = self.FL(I[i - 1] + self.h, L[i - 1] + 0.5 * self.h * kL1)
+            kL2 = self.FL(I[i - 1] + 0.5 * self.h * kI1,
+                          L[i - 1] + 0.5 * self.h * kL1)
 
-            kS3 = self.FS(S[i - 1] + 0.5 * self.h,
+            kS3 = self.FS(S[i - 1] + 0.5 * self.h * kE2,
                           I[i - 1] + 0.5 * self.h * kI2,
                           L[i - 1] + 0.5 * self.h * kL2)
-            kE3 = self.FE(S[i - 1] + 0.5 * self.h,
+            kE3 = self.FE(S[i - 1] + 0.5 * self.h * kE2,
                           E[i - 1] + 0.5 * self.h * kE2,
                           I[i - 1] + 0.5 * self.h * kI2,
                           L[i - 1] + 0.5 * self.h * kL2)
-            kI3 = self.FI(S[i - 1] + 0.5 * self.h,
+            kI3 = self.FI(S[i - 1] + 0.5 * self.h * kE2,
                           E[i - 1] + 0.5 * self.h * kE2,
                           I[i - 1] + 0.5 * self.h * kI2,
                           L[i - 1] + 0.5 * self.h * kL2)
-            kL3 = self.FL(I[i - 1] + 0.5 * self.h,
+            kL3 = self.FL(I[i - 1] + 0.5 * self.h * kI2,
                           L[i - 1] + 0.5 * self.h * kL2)
 
-            kS4 = self.FS(S[i - 1] + self.h,
+            kS4 = self.FS(S[i - 1] + self.h * kS3,
                           I[i - 1] + self.h * kI3,
                           L[i - 1] + self.h * kL3)
-            kE4 = self.FE(S[i - 1] + self.h,
+            kE4 = self.FE(S[i - 1] + self.h * kS3,
                           E[i - 1] + self.h * kE3,
                           I[i - 1] + self.h * kI3,
                           L[i - 1] + self.h * kL3)
-            kI4 = self.FI(S[i - 1] + self.h,
+            kI4 = self.FI(S[i - 1] + self.h * kS3,
                           E[i - 1] + self.h * kE3,
                           I[i - 1] + self.h * kI3,
                           L[i - 1] + self.h * kL3)
-            kL4 = self.FL(I[i - 1] + self.h, L[i - 1] + self.h * kL3)
+            kL4 = self.FL(I[i - 1] + self.h * kL3,
+                          L[i - 1] + self.h * kL3)
 
             S[i] = S[i - 1] + (self.h / 6) * (kS1 + 2 * kS2 + 2 * kS3 + kS4)
             E[i] = E[i - 1] + (self.h / 6) * (kE1 + 2 * kE2 + 2 * kE3 + kE4)
