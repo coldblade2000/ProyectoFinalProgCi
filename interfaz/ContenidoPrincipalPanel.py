@@ -17,15 +17,17 @@ import numpy as np
 class ContenidoPrincipalPanel(Frame):
     def render(self, path=None):
         S, E, I, L, t = None, None, None, None, None
+        TITULO = 'Solucion del modelo SEIL '
         if path == None:
             S, E, I, L, t = self.model.calcularGrafica(self.model.metodo_actual)
         else:
+            TITULO = TITULO + 'importado '
             S, E, I, L, t = self.model.importarDatos(path)
         self.model.actualizar_datos(S, E, I, L, t)
         ax = self.ax
         ax.cla()
         metodo = self.model.metodo_actual
-        TITULO = 'Solucion del modelo SEIL '
+
         if metodo == EULER_FORWARD:
             ax.set_title(TITULO + "(Euler hacia adelante)")
         elif metodo == EULER_BACKWARDS:
