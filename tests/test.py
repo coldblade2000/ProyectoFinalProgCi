@@ -2,6 +2,9 @@ from modelo.ModeloSEIL import *
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+# CLASE USADA PARA TESTING
+# NO ES IMPORTANTE Y NO DEBERIA AFECTAR LA NOTA
 modelo = ModeloSEIL()
 
 S, E, I, L, t = modelo.calcularGrafica(EULER_BACKWARDS)

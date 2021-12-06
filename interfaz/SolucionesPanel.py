@@ -29,9 +29,10 @@ class SolucionesPanel(Frame):
         self.model.metodo_actual = SOLVE_IVP
         self.parent.refresh()
 
+    # Inicializa el panel
     def __init__(self, model: ModeloSEIL, parent=None, **kw):
         super().__init__(parent, **kw)
-        #
+
         self.parent = parent
         self.model = model
         self['borderwidth'] = 2
@@ -75,8 +76,10 @@ class SolucionesPanel(Frame):
                        fg='#ffffff', relief='flat', font=('Calibri', 12, 'normal'), height=2, width=16)
         S_IVP.grid(row=3, column=2, columnspan=1, padx=16, pady=8)
 
+    # Guarda referencia al mainframe
     def setParent(self, parent):
         self.parent = parent
 
+    # Ejecuta el panel
     def start(self):
         self.mainloop()

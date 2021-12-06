@@ -5,6 +5,8 @@ from modelo.ModeloSEIL import ModeloSEIL
 
 
 class ParametrosPanel(Frame):
+
+    # Se inicializa el panel
     def __init__(self, model: ModeloSEIL, parent=None, **kw):
         super().__init__(parent, **kw)
         self.model = model
@@ -94,12 +96,16 @@ class ParametrosPanel(Frame):
                              fg='#ffffff', relief='flat', width=16)
         refresh_btn.grid(row=8, column=1, columnspan=4, padx=20, pady=20)
     def refresh(self):
-        self.model.actualizarValores(self.β_var.get(), self.Λ_var.get(), self.Φ_var.get(), self.μ_var.get(), self.δ_var.get(), self.p_var.get(), self.k_var.get(),
-                            self.r1_var.get(), self.r2_var.get(), self.γ_var.get(), self.d1_var.get(), self.d2_var.get())
+        self.model.actualizarValores(self.β_var.get(), self.Λ_var.get(), self.Φ_var.get(), self.μ_var.get(),
+                                     self.δ_var.get(), self.p_var.get(), self.k_var.get(),
+                                     self.r1_var.get(), self.r2_var.get(), self.γ_var.get(), self.d1_var.get(),
+                                     self.d2_var.get())
         self.parent.refresh()
 
+    # Guarda referencia al mainframe
     def setParent(self, parent):
         self.parent = parent
 
+    # Ejecuta el panel
     def start(self):
         self.mainloop()

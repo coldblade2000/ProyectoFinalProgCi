@@ -2,6 +2,7 @@ import struct as st
 from scipy.integrate import solve_ivp
 import numpy as np
 
+# Constantes que indican que metodo de solucion se selecciono
 EULER_FORWARD = "EF"
 EULER_BACKWARDS = "EB"
 EULER_MODIFIED = "EM"
@@ -10,6 +11,8 @@ RUNGEKUTTA4 = "RK4"
 SOLVE_IVP = 'SI'
 
 
+# Clase modelo que tiene referencia a todos los datos de la aplicacion,
+# y se encarga de todos los calculos de los metodos
 class ModeloSEIL:
     def __init__(self):
         #   fuente: https://bloqueneon.uniandes.edu.co/content/enforced/51408-202120_IBIO2240_01/Proyecto%20final/Cap%2016.pdf pg 4
@@ -40,7 +43,7 @@ class ModeloSEIL:
         self.l_0 = 0
         self.h = 0.5
 
-        # VARIABLES DEL MUNDO
+        # VARIABLES DEL MODELO
         self.datos = np.empty(0)
         self.anios_maximos = 20
         self.metodo_actual = EULER_FORWARD
@@ -51,6 +54,7 @@ class ModeloSEIL:
             "L": True,
         }
 
+    # Cambiar los valores de las constantes que tiene el modelo
     def actualizarValores(self, β, Λ, Φ, μ, δ, p, k, r1, r2, γ, d1, d2):
         self.β = β
         self.Λ = Λ
@@ -66,6 +70,7 @@ class ModeloSEIL:
         self.d2 = d2
         self.calcularGrafica(self.metodo_actual)
 
+    # Cambia los valores de la simulacion, se usa cuando se importa un archivo
     def actualizar_datos(self, S, E, I, L, t):
         self.datos = {
             "S": S,
@@ -75,6 +80,7 @@ class ModeloSEIL:
             "t": t
         }
 
+    # Corre las simulaciones segun el metodo seleccionado
     def calcularGrafica(self, metodo):
         t = np.arange(0, self.anios_maximos + self.h, self.h)
         N = len(t)
@@ -82,11 +88,12 @@ class ModeloSEIL:
         E = np.empty(N)
         I = np.empty(N)
         L = np.empty(N)
+        # Inicializa los valores de los arreglos
         S[0] = self.s_0
         E[0] = self.e_0
         I[0] = self.i_0
         L[0] = self.l_0
-
+        # Corre la funcion correspondiente segun el metodo de solucion escogido
         if metodo == EULER_FORWARD:
             S, E, I, L = self.euler_forward(S, E, I, L, t)
         elif metodo == EULER_BACKWARDS:
@@ -102,6 +109,8 @@ class ModeloSEIL:
 
         return S, E, I, L, t
 
+    # Se encarga de importar el archivo en un cierto path. Consigue el metodo usado en el archivo, los años de simulacion
+    # y guarda los valores de la simulacion. Retorna los datos
     def importarDatos(self, path: str):
         file = open(path, 'rb')
         content = file.read()
@@ -133,6 +142,7 @@ class ModeloSEIL:
 
         return S, E, I, L, t
 
+    # Con una referencia a un archivo, guarda todos los datos de la grafica actual al archivo como una lista de doubles.
     def exportarDatos(self, file):
         datos = np.concatenate((self.datos['t'], self.datos['S'], self.datos['E'], self.datos['I'], self.datos['L']))
         metodo = None
@@ -156,16 +166,20 @@ class ModeloSEIL:
 
     # ecuaciones diferenciales
 
+    # Ecuacion de S'
     def FS(self, s, i, l):
         return self.Λ - self.β * s * (i + self.δ * l) - self.μ * s
 
+    # Ecuacion de E'
     def FE(self, s, e, i, l):
         return self.β * (1 - self.p) * s * (i + self.δ * l) + self.r2 * i - (self.μ + self.k * (1 - self.r1)) * e
 
+    # Ecuacion de I'
     def FI(self, s, e, i, l):
         return self.β * self.p * s * (i + self.δ * l) + self.k * (1 - self.r1) * e + \
                self.γ * l - (self.μ + self.d1 + self.Φ * (1 - self.r2) + self.r2) * i
 
+    # Ecuacion de L'
     def FL(self, i, l):
         return self.Φ * (1 - self.r2) * i - (self.μ + self.d2 + self.γ) * l
 
@@ -180,6 +194,8 @@ class ModeloSEIL:
         return S, E, I, L
 
     def euler_backward(self, S, E, I, L, t):
+        # Para los valores de S[I],...L[i] necesitados en la ecuacion,
+        # conseguimos los valores calculando primero con Euler_forward
         Sf, Ef, If, Lf = self.euler_forward(S, E, I, L, t)
         for i in range(1, len(t)):
             S[i] = S[i - 1] + self.h * self.FS(Sf[i], If[i], Lf[i])
@@ -189,9 +205,17 @@ class ModeloSEIL:
         return S, E, I, L
 
     def euler_modified(self, S, E, I, L, t):
-        # TODO Implementar
+        # Para los valores de S[I],...L[i] necesitados en la ecuacion,
+        # conseguimos los valores calculando primero con Euler_forward
+        Sf, Ef, If, Lf = self.euler_forward(S, E, I, L, t)
         for i in range(1, len(t)):
-            print()
+            S[i] = S[i - 1] + self.h * ((self.FS(Sf[i], If[i], Lf[i]) + self.FS(S[i - 1], I[i - 1], L[i - 1])) / 2)
+            E[i] = E[i - 1] + self.h * (
+                    (self.FE(Sf[i], Ef[i], If[i], Lf[i]) + self.FE(S[i - 1], E[i - 1], I[i - 1], L[i - 1])) / 2)
+            I[i] = I[i - 1] + self.h * (
+                    (self.FI(Sf[i], Ef[i], If[i], Lf[i]) + self.FI(S[i - 1], E[i - 1], I[i - 1], L[i - 1])) / 2)
+            L[i] = L[i - 1] + self.h * ((self.FL(If[i], Lf[i]) + self.FL(I[i - 1], L[i - 1])) / 2)
+
         return S, E, I, L
 
     def runge_kutta_2(self, S, E, I, L, t):
@@ -277,6 +301,7 @@ class ModeloSEIL:
         L = result.y[3]
         return S, E, I, L
 
+    # Organizamos las ecuaciones diferenciales de tal forma que solve_ivp pueda entenderlas.
     def s_ivp_function(self, t, y, β, Λ, Φ, μ, δ, p, k, r1, r2, γ, d1, d2):
         s, e, i, l = y
         return np.array([Λ - β * s * (i + δ * l) - μ * s,
