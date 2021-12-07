@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import asksaveasfile
 from tkinter.messagebox import showinfo
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 
 from modelo.ModeloSEIL import *
 
@@ -129,22 +130,25 @@ class ContenidoPrincipalPanel(Frame):
         l_boton = ttk.Checkbutton(self, variable=self.l_var, text="L(t)", command=self.change_selections)
         l_boton.grid(column=4, row=3)
 
+        toolbar = NavigationToolbar2Tk(self.grafica, self, pack_toolbar=False)
+        toolbar.grid(row=4, columnspan=4)
+
         # Se crea la caja de texto para los años que deberia correr la simulacion
         tiempo = ttk.Label(master=self, text="Tiempo de simulación")
-        tiempo.grid(column=2, row=4)
+        tiempo.grid(column=2, row=5)
         self.tiempo_var = IntVar()
         self.tiempo_var.set(self.model.anios_maximos)
         tiempo_caja = ttk.Entry(self, textvariable=self.tiempo_var)
-        tiempo_caja.grid(column=2, row=5)
+        tiempo_caja.grid(column=2, row=6)
 
         date = ttk.Label(master=self, text="Años")
-        date.grid(column=3, row=5)
+        date.grid(column=3, row=6)
 
         # Cre un boton para refrescar la grafica segun los cambios de los años de simulacion
         refresh_btn = Button(self, text='Refrescar', bg='#f4b183', highlightbackground='#f4b183',
                              command=self.cambiar_anios,
                              fg='#ffffff', relief='flat', font=('Calibri', 12, 'normal'), height=2, width=16)
-        refresh_btn.grid(row=5, column=4, padx=16, pady=8)
+        refresh_btn.grid(row=6, column=4, padx=16, pady=8)
 
     # Guarda los años de simulacion en el modelo
     def cambiar_anios(self):
